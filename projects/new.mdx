@@ -6,25 +6,73 @@ highlight: 2
 banner: "benner-sepasang.png"
 ---
 
-We recommend using **Static Generation** (with and without data) whenever possible because your page can be built once and served by CDN, which makes it much faster than having a server render the page on every request.
+# Installation
 
-```ts
-const sum = (num1: number, num2: number): number => {
-  return num1 + num2;
-};
-
-console.log(sum(4, 8)); //12
+```jsx
+npx create-next-app@latest
 ```
 
-You can use Static Generation for many types of pages, including:
+```jsx
+What is your project named? my-app
+Would you like to add TypeScript with this project? Y/N
+Would you like to use ESLint with this project? Y/N
+Would you like to use Tailwind CSS with this project? Y/N
+Would you like to use the `src/ directory` with this project? Y/N
+What import alias would you like configured? `@/*`
+```
 
-- Marketing pages
-- Blog posts
-- E-commerce product listings
-- Help and documentation
+```jsx
+cd langkah
+npm run dev
+```
 
-You should ask yourself: "Can I pre-render this page **ahead** of a user's request?" If the answer is yes, then you should choose Static Generation.
+# Setup Docker Nextjs
 
-On the other hand, Static Generation is **not** a good idea if you cannot pre-render a page ahead of a user's request. Maybe your page shows frequently updated data, and the page content changes on every request.
+Buat sebuah docker compose dan dockerfile untuk run nextjs didalam container docker. Pada tahap ini kita akan membuat untuk kebutuhan development dimana akan menggunakan hot reload. docker-compose.dev.yml
 
-In that case, you can use **Server-Side Rendering**. It will be slower, but the pre-rendered page will always be up-to-date. Or you can skip pre-rendering and use client-side JavaScript to populate data.
+```yaml
+version: "3"
+
+services:
+  langkah-app:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    container_name: langkah-app
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+```
+
+dev.Dockerfile.yml
+
+```yaml
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./ RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+CMD ["npm", "run", "dev"]
+```
+
+Jalankan printah untuk run docker-compose
+
+```bash
+# Commend untuk build dan run terpisah
+docker-compose -f docker-compose.dev.yml build
+docker-compose -f docker-compose.dev.yml up -d
+
+atau
+# Commend untuk build sekaligus run
+docker-compose -f docker-compose.dev.yml up -d
+```
